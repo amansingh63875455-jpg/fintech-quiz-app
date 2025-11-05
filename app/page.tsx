@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 const TABS = ["today-news", "historical-news", "jobs", "skills"];
-const API_KEY = "pub_64e9e79f2e348f96f9a6ee9f2e1d4a3b3eff9";
+const API_KEY = "pub_094c65dbe9044ab6882a0ea5d8dbe048";
 const BASE_URL = "https://newsdata.io/api/1/news";
 
 export default function Home() {
@@ -272,3 +272,4 @@ export default function Home() {
     </div>
   );
 }
+
