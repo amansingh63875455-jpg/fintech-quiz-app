@@ -79,8 +79,7 @@ export default function Home() {
         const historicalData = await historicalRes.json();
         const historicalNews = historicalData.results?.slice(0, 10) || [];
 
-        setNews({ today: todayNews, historical: historicalNews });
-      } catch (error) {
+        setNews(MOCK_NEWS);      } catch (error) {
         console.error("Failed to fetch news:", error);
         setNews({ today: MOCK_NEWS.today historical: MOCK_NEWS.historical });
       } finally {
@@ -299,5 +298,6 @@ export default function Home() {
     </div>
   );
 }
+
 
 
