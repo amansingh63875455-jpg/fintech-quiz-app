@@ -1,40 +1,31 @@
 import { NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(request: Request) {
   try {
     const { prompt } = await request.json();
-    const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_KEY;
+    const apiKey = process.env.NEXT_PUBLIC_GEMINI_KEY;
 
-    if (!GEMINI_API_KEY) {
+    if (!apiKey) {
       return NextResponse.json(
         { error: 'API key not configured' },
         { status: 500 }
       );
     }
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      }
-    );
+    // Initialize the Google Generative AI client
+    const genAI = new GoogleGenerativeAI(apiKey);
+    
+    // Get the generative model
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    
+    // Generate content
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
 
-    const result = await response.json();
-
-    if (result.error) {
-      return NextResponse.json(
-        { error: result.error.message || 'API Error' },
-        { status: 400 }
-      );
-    }
-
-    const output = result?.candidates?.[0]?.content?.parts?.[0]?.text || 'No data available.';
-    return NextResponse.json({ text: output });
+    return NextResponse.json({ text });
   } catch (error) {
+    console.error('Gemini API Error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch from Gemini API' },
       { status: 500 }
