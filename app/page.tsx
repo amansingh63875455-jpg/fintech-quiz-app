@@ -1,232 +1,174 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Calendar, GraduationCap, History, BookOpen, Volume2 } from 'lucide-react';
+import React, { useEffect, useState } from "react";
 
-// Quiz questions data
-const quizQuestions = [
-  {
-    id: 1,
-    question: "What does ROI stand for in finance?",
-    options: [
-      "Return on Investment",
-      "Rate of Interest",
-      "Revenue on Income",
-      "Risk of Inflation"
-    ],
-    correctAnswer: 0
-  },
-  {
-    id: 2,
-    question: "What is a stock split?",
-    options: [
-      "Selling stocks to multiple buyers",
-      "Dividing existing shares into multiple new shares",
-      "Combining multiple stocks into one",
-      "Transferring stocks between accounts"
-    ],
-    correctAnswer: 1
-  },
-  {
-    id: 3,
-    question: "What is diversification in investing?",
-    options: [
-      "Investing all money in one stock",
-      "Spreading investments across different assets",
-      "Only investing in technology stocks",
-      "Keeping all money in savings accounts"
-    ],
-    correctAnswer: 1
-  },
-  {
-    id: 4,
-    question: "What is a bear market?",
-    options: [
-      "Market with rising prices",
-      "Market with falling prices",
-      "Market with stable prices",
-      "Market for animal trading"
-    ],
-    correctAnswer: 1
-  },
-  {
-    id: 5,
-    question: "What does ETF stand for?",
-    options: [
-      "Electronic Trading Fund",
-      "Exchange Traded Fund",
-      "Equity Transfer Fund",
-      "External Trade Finance"
-    ],
-    correctAnswer: 1
-  }
-];
+const TABS = ["news", "jobs", "skills"];
 
-export default function Home() {
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [score, setScore] = useState(0);
-  const [showScore, setShowScore] = useState(false);
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
-  const [answeredQuestions, setAnsweredQuestions] = useState<boolean[]>(new Array(quizQuestions.length).fill(false));
+const App = () => {
+  const [activeTab, setActiveTab] = useState("news");
+  const [news, setNews] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleAnswerClick = (selectedOption: number) => {
-    setSelectedAnswer(selectedOption);
-    
-    if (selectedOption === quizQuestions[currentQuestion].correctAnswer) {
-      setScore(score + 1);
-    }
+  // Fetch FinTech News
+  useEffect(() => {
+    const fetchNews = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(
+          "https://newsdata.io/api/1/news?apikey=YOUR_API_KEY&category=business&language=en&q=fintech"
+        );
+        const data = await res.json();
+        setNews(data.results || []);
+      } catch (error) {
+        console.error("Error fetching news:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNews();
+  }, []);
 
-    const newAnsweredQuestions = [...answeredQuestions];
-    newAnsweredQuestions[currentQuestion] = true;
-    setAnsweredQuestions(newAnsweredQuestions);
-  };
+  // Mock FinTech Job Data
+  const jobs = [
+    {
+      title: "FinTech Data Analyst",
+      company: "Paytm",
+      location: "Bangalore, India",
+      posted: "2 days ago",
+      link: "#",
+    },
+    {
+      title: "Blockchain Developer",
+      company: "CoinSwitch",
+      location: "Remote",
+      posted: "3 days ago",
+      link: "#",
+    },
+    {
+      title: "Product Manager - Digital Banking",
+      company: "Razorpay",
+      location: "Bangalore, India",
+      posted: "5 days ago",
+      link: "#",
+    },
+  ];
 
-  const handleNextQuestion = () => {
-    const nextQuestion = currentQuestion + 1;
-    
-    if (nextQuestion < quizQuestions.length) {
-      setCurrentQuestion(nextQuestion);
-      setSelectedAnswer(null);
-    } else {
-      setShowScore(true);
-    }
-  };
-
-  const handlePreviousQuestion = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
-      setSelectedAnswer(null);
-    }
-  };
-
-  const handleRestart = () => {
-    setCurrentQuestion(0);
-    setScore(0);
-    setShowScore(false);
-    setSelectedAnswer(null);
-    setAnsweredQuestions(new Array(quizQuestions.length).fill(false));
-  };
+  // Top FinTech Skills (based on 2025 trends)
+  const skills = [
+    { skill: "Python & Data Analytics", demand: "High" },
+    { skill: "Machine Learning (Finance AI)", demand: "Very High" },
+    { skill: "Blockchain & DeFi", demand: "Very High" },
+    { skill: "Cloud Computing (AWS, GCP)", demand: "High" },
+    { skill: "SQL & Database Management", demand: "Medium" },
+    { skill: "Financial Modelling", demand: "Medium" },
+    { skill: "RegTech & Cybersecurity", demand: "Rising" },
+  ];
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-indigo-600 flex items-center gap-2">
-            <BookOpen className="w-8 h-8" />
-            FinTech Quiz
-          </h1>
-          <div className="flex items-center gap-2 text-indigo-600">
-            <GraduationCap className="w-6 h-6" />
-            <span className="font-semibold">Score: {score}/{quizQuestions.length}</span>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-pink-500 text-white">
+      <div className="max-w-4xl mx-auto py-10 px-6">
+        <h1 className="text-4xl font-bold mb-2">FinTech D10</h1>
+        <p className="text-lg mb-8">Top FinTech News, Jobs & Skill Insights</p>
+
+        {/* Tabs */}
+        <div className="flex justify-around bg-white/10 rounded-xl p-3 mb-6">
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded-lg font-semibold ${
+                activeTab === tab
+                  ? "bg-white text-indigo-600"
+                  : "text-white hover:bg-white/20"
+              }`}
+            >
+              {tab === "news"
+                ? "Today News"
+                : tab === "jobs"
+                ? "Job Openings"
+                : "Top Skills"}
+            </button>
+          ))}
         </div>
 
-        {showScore ? (
-          <div className="text-center space-y-6">
-            <div className="flex justify-center">
-              <div className="bg-indigo-100 rounded-full p-6">
-                <Volume2 className="w-16 h-16 text-indigo-600" />
-              </div>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-800">Quiz Complete!</h2>
-            <p className="text-xl text-gray-600">
-              You scored {score} out of {quizQuestions.length}
-            </p>
-            <div className="text-lg text-gray-700">
-              {score === quizQuestions.length && "Perfect score! 🎉"}
-              {score >= quizQuestions.length * 0.7 && score < quizQuestions.length && "Great job! 👏"}
-              {score >= quizQuestions.length * 0.5 && score < quizQuestions.length * 0.7 && "Good effort! 👍"}
-              {score < quizQuestions.length * 0.5 && "Keep practicing! 💪"}
-            </div>
-            <button
-              onClick={handleRestart}
-              className="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-semibold"
-            >
-              Restart Quiz
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-500">
-                Question {currentQuestion + 1} of {quizQuestions.length}
-              </span>
-              <div className="flex gap-1">
-                {quizQuestions.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`w-2 h-2 rounded-full ${
-                      index === currentQuestion
-                        ? 'bg-indigo-600'
-                        : answeredQuestions[index]
-                        ? 'bg-indigo-300'
-                        : 'bg-gray-300'
-                    }`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-indigo-50 rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-indigo-600" />
-                {quizQuestions[currentQuestion].question}
-              </h2>
-            </div>
-
-            <div className="space-y-3">
-              {quizQuestions[currentQuestion].options.map((option, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleAnswerClick(index)}
-                  disabled={selectedAnswer !== null}
-                  className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                    selectedAnswer === index
-                      ? index === quizQuestions[currentQuestion].correctAnswer
-                        ? 'border-green-500 bg-green-50'
-                        : 'border-red-500 bg-red-50'
-                      : selectedAnswer !== null && index === quizQuestions[currentQuestion].correctAnswer
-                      ? 'border-green-500 bg-green-50'
-                      : 'border-gray-200 hover:border-indigo-300 hover:bg-indigo-50'
-                  } disabled:cursor-not-allowed`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-gray-700">{option}</span>
-                    {selectedAnswer !== null && (
-                      <span>
-                        {index === quizQuestions[currentQuestion].correctAnswer ? (
-                          <span className="text-green-600 text-xl">✓</span>
-                        ) : selectedAnswer === index ? (
-                          <span className="text-red-600 text-xl">✗</span>
-                        ) : null}
-                      </span>
-                    )}
+        {/* Content */}
+        <div className="bg-white text-black rounded-2xl p-6 shadow-lg">
+          {activeTab === "news" && (
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">Latest FinTech Updates</h2>
+              {loading ? (
+                <p>Loading news...</p>
+              ) : (
+                news.slice(0, 5).map((item, i) => (
+                  <div key={i} className="border-b py-3">
+                    <h3 className="font-semibold text-lg">{item.title}</h3>
+                    <p className="text-gray-700">{item.description}</p>
+                    <a
+                      href={item.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-indigo-600 hover:underline"
+                    >
+                      Read more →
+                    </a>
                   </div>
-                </button>
+                ))
+              )}
+            </div>
+          )}
+
+          {activeTab === "jobs" && (
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">Latest FinTech Job Openings</h2>
+              {jobs.map((job, i) => (
+                <div key={i} className="border-b py-3">
+                  <h3 className="text-xl font-bold">{job.title}</h3>
+                  <p className="text-gray-700">
+                    {job.company} — {job.location}
+                  </p>
+                  <p className="text-sm text-gray-500">Posted: {job.posted}</p>
+                  <a
+                    href={job.link}
+                    className="text-indigo-600 hover:underline text-sm"
+                  >
+                    View Details →
+                  </a>
+                </div>
               ))}
             </div>
+          )}
 
-            <div className="flex justify-between pt-4">
-              <button
-                onClick={handlePreviousQuestion}
-                disabled={currentQuestion === 0}
-                className="flex items-center gap-2 px-6 py-2 rounded-lg border-2 border-gray-300 hover:border-indigo-300 hover:bg-indigo-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <History className="w-5 h-5" />
-                Previous
-              </button>
-              <button
-                onClick={handleNextQuestion}
-                disabled={selectedAnswer === null}
-                className="flex items-center gap-2 px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {currentQuestion === quizQuestions.length - 1 ? 'Finish' : 'Next'}
-                <Volume2 className="w-5 h-5" />
-              </button>
+          {activeTab === "skills" && (
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">Top FinTech Skills in 2025</h2>
+              <ul className="space-y-2">
+                {skills.map((s, i) => (
+                  <li
+                    key={i}
+                    className="flex justify-between border-b pb-2 text-gray-800"
+                  >
+                    <span>{s.skill}</span>
+                    <span className="font-medium text-indigo-600">{s.demand}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="mt-6 bg-indigo-50 p-4 rounded-xl">
+                <h3 className="font-semibold text-lg text-indigo-800 mb-2">
+                  Skill Analysis:
+                </h3>
+                <p className="text-gray-700">
+                  FinTech in 2025 is heavily driven by **AI, data analytics, and blockchain**.
+                  Professionals with cross-domain skills — combining **finance, programming,
+                  and business understanding** — are in the highest demand globally.
+                </p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </main>
+    </div>
   );
-}
+};
+
+export default App;
