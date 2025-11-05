@@ -6,6 +6,33 @@ const TABS = ["today-news", "historical-news", "jobs", "skills"];
 const API_KEY = "pub_094c65dbe9044ab6882a0ea5d8dbe048";
 const BASE_URL = "https://newsdata.io/api/1/news";
 
+const MOCK_NEWS = {
+  today: [
+    {title:"Fintech Giants Race to Integrate AI",description:"Leading financial tech companies announce major AI initiatives",source_id:"TechCrunch",link:"#",pubDate:"2025-11-05"},
+    {title:"Cryptocurrency Market Surges on Regulatory Clarity",description:"New international framework supports digital asset adoption",source_id:"CoinDesk",link:"#",pubDate:"2025-11-05"},
+    {title:"Open Banking APIs Transform Financial Services",description:"Banks embrace API-first architecture for better integration",source_id:"FinanceFeeds",link:"#",pubDate:"2025-11-05"},
+    {title:"Mobile Wallets Dominate Digital Payments",description:"Consumer adoption of contactless payments reaches all-time high",source_id:"PaymentSource",link:"#",pubDate:"2025-11-05"},
+    {title:"Blockchain Solutions Tackle Enterprise Security",description:"Enterprise adoption of blockchain technology accelerates",source_id:"Enterprise Times",link:"#",pubDate:"2025-11-04"},
+    {title:"InsurTech Market Expands with New Startups",description:"Insurance technology companies raise record funding rounds",source_id:"VentureBeat",link:"#",pubDate:"2025-11-04"},
+    {title:"RegTech Solutions Reduce Compliance Costs",description:"Automation helps financial firms meet regulatory requirements",source_id:"Fintech Magazine",link:"#",pubDate:"2025-11-04"},
+    {title:"Cross-Border Payments Get Faster and Cheaper",description:"New fintech platforms challenge traditional remittance services",source_id:"MoneyTransfer",link:"#",pubDate:"2025-11-03"},
+    {title:"Digital Banking Adoption Reaches 65% Globally",description:"Survey shows continued growth in digital-first banking",source_id:"McKinsey",link:"#",pubDate:"2025-11-03"},
+    {title:"Quantum Computing May Reshape Financial Services",description:"Researchers explore quantum solutions for complex finance problems",source_id:"Nature Finance",link:"#",pubDate:"2025-11-02"}
+  ],
+  historical: [
+    {title:"Fintech Valuations Hit Record Highs in 2024",description:"Venture capital investment surges in financial technology sector",source_id:"Crunchbase",link:"#",pubDate:"2024-12-30"},
+    {title:"Payment Processing Goes Instant Globally",description:"Fintech solutions enable same-day international transfers",source_id:"Reuters",link:"#",pubDate:"2024-12-28"},
+    {title:"Banking as a Service Becomes Mainstream",description:"BaaS platforms attract major enterprise customers",source_id:"FinTech Magazine",link:"#",pubDate:"2024-12-25"},
+    {title:"AI in Finance: From Theory to Practice",description:"Machine learning transforms fraud detection and risk assessment",source_id:"Harvard Business Review",link:"#",pubDate:"2024-12-20"},
+    {title:"Decentralized Finance Shows Growth Despite Volatility",description:"DeFi protocols manage billions in total locked value",source_id:"The Block",link:"#",pubDate:"2024-12-15"},
+    {title:"Central Bank Digital Currencies Accelerate",description:"Multiple nations launch CBDC pilots in 2024",source_id:"BIS",link:"#",pubDate:"2024-12-10"},
+    {title:"Cybersecurity Becomes Top Fintech Priority",description:"Financial institutions increase security investments",source_id:"Forbes",link:"#",pubDate:"2024-12-05"},
+    {title:"Neobanks Challenge Traditional Banking Model",description:"Digital-first banks gain millions of customers worldwide",source_id:"TechCrunch",link:"#",pubDate:"2024-11-30"},
+    {title:"ESG in Finance: More Than a Trend",description:"Sustainable finance initiatives reshape investment landscape",source_id:"World Bank",link:"#",pubDate:"2024-11-20"},
+    {title:"Fintech Regulation Frameworks Solidify",description:"Governments establish clearer regulatory guidelines for digital finance",source_id:"World Economic Forum",link:"#",pubDate:"2024-11-10"}
+  ]
+};
+
 export default function Home() {
   const [activeTab, setActiveTab] = useState("today-news");
   const [news, setNews] = useState({ today: [], historical: [] });
@@ -55,7 +82,7 @@ export default function Home() {
         setNews({ today: todayNews, historical: historicalNews });
       } catch (error) {
         console.error("Failed to fetch news:", error);
-        setNews({ today: [], historical: [] });
+        setNews({ today: MOCK_NEWS.today historical: MOCK_NEWS.historical });
       } finally {
         setNewsLoading(false);
       }
@@ -272,4 +299,5 @@ export default function Home() {
     </div>
   );
 }
+
 
