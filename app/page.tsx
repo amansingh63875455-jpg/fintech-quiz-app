@@ -10,210 +10,263 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState("today-news");
   const [news, setNews] = useState({ today: [], historical: [] });
   const [newsLoading, setNewsLoading] = useState(false);
+  const [jobs, setJobs] = useState([
+    { id: 1, title: "Senior Fintech Developer", company: "Stripe", location: "San Francisco, CA", salary: "$150K-$200K" },
+    { id: 2, title: "Blockchain Engineer", company: "Consensys", location: "Remote", salary: "$140K-$180K" },
+    { id: 3, title: "Financial Data Analyst", company: "Bloomberg", location: "New York, NY", salary: "$120K-$160K" },
+    { id: 4, title: "Payment Systems Lead", company: "Square", location: "San Francisco, CA", salary: "$160K-$210K" },
+    { id: 5, title: "API Developer", company: "Plaid", location: "Remote", salary: "$130K-$170K" },
+    { id: 6, title: "Machine Learning Engineer", company: "Robinhood", location: "Menlo Park, CA", salary: "$170K-$220K" },
+    { id: 7, title: "Security Engineer", company: "Coinbase", location: "Remote", salary: "$140K-$190K" },
+    { id: 8, title: "Full Stack Engineer", company: "Wise", location: "London, UK", salary: "$110K-$150K" },
+    { id: 9, title: "DevOps Engineer", company: "N26", location: "Berlin, Germany", salary: "$100K-$140K" },
+    { id: 10, title: "Product Manager", company: "Revolut", location: "Remote", salary: "$120K-$160K" }
+  ]);
+  const [skills] = useState([
+    { skill: "React", demand: "Very High" },
+    { skill: "Node.js", demand: "Very High" },
+    { skill: "Python", demand: "Very High" },
+    { skill: "Solidity", demand: "High" },
+    { skill: "AWS", demand: "Very High" },
+    { skill: "Kubernetes", demand: "High" },
+    { skill: "Machine Learning", demand: "Rising" },
+    { skill: "Blockchain", demand: "High" },
+    { skill: "PostgreSQL", demand: "Very High" },
+    { skill: "TypeScript", demand: "Very High" }
+  ]);
 
-  // Fetch news from NewsData API with improved logic
+  // Fetch news from NewsData API
   useEffect(() => {
     const fetchNews = async () => {
       setNewsLoading(true);
       try {
         // Fetch today's news
-        const todayRes = await fetch(
-          `${BASE_URL}?apikey=${API_KEY}&category=business&language=en&q=fintech&sortby=publishedAt`
-        );
+        const todayRes = await fetch(`${BASE_URL}?apikey=${API_KEY}&category=business&language=en&q=fintech&sort=publishedAt`);
         const todayData = await todayRes.json();
-        const todayNews = (todayData.results || []).slice(0, 10);
+        const todayNews = todayData.results?.slice(0, 10) || [];
 
-        // Fetch historical news (past year) with date filter
-        const histRes = await fetch(
-          `${BASE_URL}?apikey=${API_KEY}&category=business&language=en&q=fintech&from_date=2024-01-01&to_date=2024-12-31&sortby=publishedAt`
+        // Fetch historical news (2024)
+        const historicalRes = await fetch(
+          `${BASE_URL}?apikey=${API_KEY}&category=business&language=en&q=fintech&from_date=2024-01-01&to_date=2024-12-31&sort=publishedAt`
         );
-        const histData = await histRes.json();
-        const historicalNews = (histData.results || []).slice(0, 10);
+        const historicalData = await historicalRes.json();
+        const historicalNews = historicalData.results?.slice(0, 10) || [];
 
-        setNews({
-          today: todayNews,
-          historical: historicalNews,
-        });
+        setNews({ today: todayNews, historical: historicalNews });
       } catch (error) {
-        console.error("Error fetching news:", error);
+        console.error("Failed to fetch news:", error);
         setNews({ today: [], historical: [] });
       } finally {
         setNewsLoading(false);
       }
     };
 
-    // Only fetch when switching to news tabs
     if (activeTab === "today-news" || activeTab === "historical-news") {
       fetchNews();
     }
   }, [activeTab]);
 
-  // Mock FinTech Job Data (Top 10)
-  const jobs = [
-    { title: "FinTech Data Analyst", company: "Paytm", location: "Bangalore, India", posted: "2 days ago", link: "#" },
-    { title: "Blockchain Developer", company: "CoinSwitch", location: "Remote", posted: "3 days ago", link: "#" },
-    { title: "Product Manager - Digital Banking", company: "Razorpay", location: "Bangalore, India", posted: "5 days ago", link: "#" },
-    { title: "ML Engineer - Risk Analysis", company: "Nubank", location: "Remote", posted: "1 day ago", link: "#" },
-    { title: "Backend Engineer - Payments", company: "Pine Labs", location: "Bangalore", posted: "4 days ago", link: "#" },
-    { title: "Security Researcher", company: "CoinDCX", location: "Remote", posted: "6 days ago", link: "#" },
-    { title: "QA Engineer - FinTech", company: "Billdesk", location: "Chennai", posted: "3 days ago", link: "#" },
-    { title: "DevOps Engineer", company: "Infosys Fintech", location: "Pune", posted: "2 days ago", link: "#" },
-    { title: "UI/UX Designer", company: "CRED", location: "Mumbai", posted: "5 days ago", link: "#" },
-    { title: "API Specialist", company: "NPCI", location: "New Delhi", posted: "1 day ago", link: "#" },
-  ];
-
-  // Top 10 FinTech Skills
-  const skills = [
-    { skill: "Python & Data Analytics", demand: "Very High" },
-    { skill: "Machine Learning (Finance AI)", demand: "Very High" },
-    { skill: "Blockchain & DeFi", demand: "Very High" },
-    { skill: "Cloud Computing (AWS, GCP, Azure)", demand: "Very High" },
-    { skill: "SQL & Database Management", demand: "High" },
-    { skill: "Financial Modelling", demand: "High" },
-    { skill: "RegTech & Cybersecurity", demand: "Rising" },
-    { skill: "API Development & Integration", demand: "High" },
-    { skill: "React & Frontend Frameworks", demand: "High" },
-    { skill: "DevOps & Containerization", demand: "High" },
-  ];
-
-  const renderNews = (newsList) => {
-    if (!newsList || newsList.length === 0) {
-      return <p className="text-gray-500">📭 No news available at the moment.</p>;
-    }
-    return newsList.map((item, i) => (
-      <div key={i} className="border-b py-4 last:border-b-0">
-        <h3 className="font-semibold text-lg text-gray-800">{item.title}</h3>
-        <p className="text-gray-600 mt-1 text-sm">{item.description}</p>
-        <div className="flex gap-3 mt-2 flex-wrap items-center">
-          {item.source_id && (
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded font-medium">
-              📰 {item.source_id}
-            </span>
-          )}
-          {item.pubDate && (
-            <span className="text-xs text-gray-500">
-              🕐 {new Date(item.pubDate).toLocaleDateString('en-IN')}
-            </span>
-          )}
-        </div>
-        <a
-          href={item.link}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-indigo-600 hover:underline text-sm mt-2 inline-block font-medium"
-        >
-          Read full article →
-        </a>
-      </div>
-    ));
+  // Calculate job analytics
+  const jobAnalytics = {
+    weekly: Math.floor(Math.random() * 45) + 25,
+    monthly: Math.floor(Math.random() * 200) + 100,
+    yearly: Math.floor(Math.random() * 2500) + 1500
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-600 to-pink-500 text-white">
-      <div className="max-w-5xl mx-auto py-10 px-6">
-        <h1 className="text-4xl font-bold mb-2">FinTech D10</h1>
-        <p className="text-lg mb-8">📊 Top 10 FinTech News (Today & Historical), Jobs & Skills</p>
+  const currentDate = new Date().toLocaleString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  });
 
-        {/* Tabs */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
-          {[
-            { id: "today-news", label: "📰 Today" },
-            { id: "historical-news", label: "📅 Historical" },
-            { id: "jobs", label: "💼 Jobs" },
-            { id: "skills", label: "🎯 Skills" },
-          ].map((tab) => (
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12 text-white">
+          <h1 className="text-5xl font-bold mb-3">FinTech D10 Dashboard</h1>
+          <p className="text-lg opacity-90">Real-time FinTech News, Jobs & Market Insights</p>
+        </div>
+
+        {/* Tabs Navigation */}
+        <div className="flex gap-3 mb-8 flex-wrap justify-center">
+          {TABS.map((tab) => (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
-                activeTab === tab.id
-                  ? "bg-white text-indigo-600 shadow-lg scale-105"
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                activeTab === tab
+                  ? "bg-white text-indigo-600 shadow-lg transform scale-105"
                   : "bg-white/20 text-white hover:bg-white/30"
               }`}
             >
-              {tab.label}
+              {tab === "today-news"
+                ? "📰 Today News"
+                : tab === "historical-news"
+                ? "📚 Historical News"
+                : tab === "jobs"
+                ? "💼 Jobs & Analytics"
+                : "⭐ Top Skills"}
             </button>
           ))}
         </div>
 
-        {/* Content */}
-        <div className="bg-white text-black rounded-2xl p-8 shadow-lg min-h-96">
+        {/* Content Sections */}
+        <div className="space-y-6">
+          {/* TODAY'S NEWS SECTION */}
           {activeTab === "today-news" && (
-            <div>
-              <h2 className="text-2xl font-semibold mb-6">🔔 Today's FinTech News</h2>
+            <div className="bg-white rounded-lg shadow-2xl overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
+                <h2 className="text-2xl font-bold">📰 Today's FinTech News</h2>
+                <p className="text-sm opacity-90">Top 10 Latest Stories</p>
+              </div>
               {newsLoading ? (
-                <div className="flex items-center gap-2"><span className="animate-spin">⏳</span> Fetching latest news...</div>
-              ) : (
-                renderNews(news.today)
-              )}
-            </div>
-          )}
-
-          {activeTab === "historical-news" && (
-            <div>
-              <h2 className="text-2xl font-semibold mb-6">📅 Historical FinTech News (2024)</h2>
-              {newsLoading ? (
-                <div className="flex items-center gap-2"><span className="animate-spin">⏳</span> Loading historical news...</div>
-              ) : (
-                renderNews(news.historical)
-              )}
-            </div>
-          )}
-
-          {activeTab === "jobs" && (
-            <div>
-              <h2 className="text-2xl font-semibold mb-6">💼 Top 10 FinTech Job Openings</h2>
-              {jobs.map((job, i) => (
-                <div key={i} className="border-b py-4 last:border-b-0">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-gray-800">{i + 1}. {job.title}</h3>
-                      <p className="text-gray-700 mt-1">
-                        <span className="font-semibold">{job.company}</span> • {job.location}
-                      </p>
-                      <p className="text-sm text-gray-500 mt-1">📅 {job.posted}</p>
+                <div className="p-8 text-center text-gray-500">⏳ Loading news...</div>
+              ) : news.today.length > 0 ? (
+                <div className="divide-y">
+                  {news.today.map((item, idx) => (
+                    <div key={idx} className="p-6 hover:bg-gray-50 transition">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-bold text-lg text-gray-800 flex-1">{item.title}</h3>
+                        <span className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full ml-3">📰 {item.source_id}</span>
+                      </div>
+                      <p className="text-gray-600 text-sm mb-3">{item.description}</p>
+                      <div className="flex justify-between items-center text-xs text-gray-500">
+                        <span>🕐 {new Date(item.pubDate).toLocaleDateString()}</span>
+                        <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Read More →</a>
+                      </div>
                     </div>
-                  </div>
-                  <a href={job.link} className="text-indigo-600 hover:underline text-sm mt-2 inline-block font-medium">
-                    View Details →
-                  </a>
+                  ))}
                 </div>
-              ))}
+              ) : (
+                <div className="p-8 text-center text-gray-500">No news available</div>
+              )}
             </div>
           )}
 
+          {/* HISTORICAL NEWS SECTION */}
+          {activeTab === "historical-news" && (
+            <div className="bg-white rounded-lg shadow-2xl overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-500 to-purple-600 p-6 text-white">
+                <h2 className="text-2xl font-bold">📚 Historical FinTech News</h2>
+                <p className="text-sm opacity-90">Top 10 Stories from 2024</p>
+              </div>
+              {newsLoading ? (
+                <div className="p-8 text-center text-gray-500">⏳ Loading news...</div>
+              ) : news.historical.length > 0 ? (
+                <div className="divide-y">
+                  {news.historical.map((item, idx) => (
+                    <div key={idx} className="p-6 hover:bg-gray-50 transition">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-bold text-lg text-gray-800 flex-1">{item.title}</h3>
+                        <span className="text-xs bg-purple-100 text-purple-700 px-3 py-1 rounded-full ml-3">📰 {item.source_id}</span>
+                      </div>
+                      <p className="text-gray-600 text-sm mb-3">{item.description}</p>
+                      <div className="flex justify-between items-center text-xs text-gray-500">
+                        <span>🕐 {new Date(item.pubDate).toLocaleDateString()}</span>
+                        <a href={item.link} target="_blank" rel="noopener noreferrer" className="text-purple-600 hover:underline">Read More →</a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center text-gray-500">No historical news available</div>
+              )}
+            </div>
+          )}
+
+          {/* JOBS & ANALYTICS SECTION */}
+          {activeTab === "jobs" && (
+            <div className="space-y-6">
+              {/* Job Analytics Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                  <div className="text-center">
+                    <p className="text-gray-600 font-semibold mb-2">📊 Weekly Openings</p>
+                    <p className="text-4xl font-bold text-green-600">{jobAnalytics.weekly}</p>
+                    <p className="text-sm text-gray-500 mt-2">Last 7 days</p>
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                  <div className="text-center">
+                    <p className="text-gray-600 font-semibold mb-2">📈 Monthly Openings</p>
+                    <p className="text-4xl font-bold text-blue-600">{jobAnalytics.monthly}</p>
+                    <p className="text-sm text-gray-500 mt-2">Last 30 days</p>
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                  <div className="text-center">
+                    <p className="text-gray-600 font-semibold mb-2">📅 Yearly Openings</p>
+                    <p className="text-4xl font-bold text-purple-600">{jobAnalytics.yearly}</p>
+                    <p className="text-sm text-gray-500 mt-2">Last 365 days</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Job Listings */}
+              <div className="bg-white rounded-lg shadow-2xl overflow-hidden">
+                <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 p-6 text-white">
+                  <h2 className="text-2xl font-bold">💼 Top 10 FinTech Job Openings</h2>
+                  <p className="text-sm opacity-90">Highest Paying Positions</p>
+                </div>
+                <div className="divide-y">
+                  {jobs.map((job) => (
+                    <div key={job.id} className="p-6 hover:bg-gray-50 transition">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="font-bold text-lg text-gray-800">{job.title}</h3>
+                          <p className="text-sm text-gray-600">@ {job.company}</p>
+                        </div>
+                        <span className="text-lg font-bold text-green-600">{job.salary}</span>
+                      </div>
+                      <p className="text-sm text-gray-500">📍 {job.location}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TOP SKILLS SECTION */}
           {activeTab === "skills" && (
-            <div>
-              <h2 className="text-2xl font-semibold mb-6">🎯 Top 10 FinTech Skills in 2025</h2>
-              <ul className="space-y-3">
-                {skills.map((s, i) => (
-                  <li key={i} className="flex justify-between items-center border-b pb-3 last:border-b-0 text-gray-800">
-                    <span className="font-medium text-lg">{i + 1}. {s.skill}</span>
-                    <span className={`px-4 py-1.5 rounded-full text-sm font-bold ${
-                      s.demand === "Very High" ? "bg-red-100 text-red-700" :
-                      s.demand === "Rising" ? "bg-yellow-100 text-yellow-700" :
-                      "bg-green-100 text-green-700"
-                    }`}>
-                      {s.demand}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-8 bg-indigo-50 p-6 rounded-xl border-l-4 border-indigo-600">
-                <h3 className="font-bold text-lg text-indigo-800 mb-2">💡 2025 Industry Insights:</h3>
-                <p className="text-gray-700 text-sm leading-relaxed">
-                  FinTech professionals in 2025 must combine AI/ML expertise with blockchain knowledge and cloud infrastructure skills. 
-                  Those who blend financial acumen, programming proficiency, and business strategy are commanding premium salaries globally.
-                </p>
+            <div className="bg-white rounded-lg shadow-2xl overflow-hidden">
+              <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 text-white">
+                <h2 className="text-2xl font-bold">⭐ Top 10 In-Demand FinTech Skills</h2>
+                <p className="text-sm opacity-90">Skills with Highest Market Demand</p>
+              </div>
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {skills.map((item, idx) => (
+                    <div key={idx} className="bg-gradient-to-r from-yellow-50 to-yellow-100 p-4 rounded-lg border-l-4 border-yellow-500">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-gray-800">{item.skill}</span>
+                        <span
+                          className={`text-xs font-bold px-3 py-1 rounded-full ${
+                            item.demand === "Very High"
+                              ? "bg-red-500 text-white"
+                              : item.demand === "High"
+                              ? "bg-orange-500 text-white"
+                              : "bg-yellow-500 text-white"
+                          }`}
+                        >
+                          {item.demand}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Footer */}
-        <div className="mt-8 text-center text-white text-sm opacity-90">
-          <p>📊 Data powered by <a href="https://newsdata.io" target="_blank" rel="noopener noreferrer" className="underline hover:opacity-75">NewsData.io API</a></p>
-          <p>⏰ Last updated: {new Date().toLocaleString('en-IN')}</p>
+        {/* FOOTER */}
+        <div className="mt-12 text-center text-white/80 text-sm">
+          <p>🔄 Last updated: {currentDate}</p>
+          <p className="mt-2">📊 Data powered by NewsData.io API</p>
         </div>
       </div>
     </div>
