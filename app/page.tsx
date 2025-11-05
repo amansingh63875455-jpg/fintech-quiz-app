@@ -25,6 +25,13 @@ export default function Home() {
       );
 
       const result = await response.json();
+            console.log('API Response:', JSON.stringify(result, null, 2));
+            if (result.error) {
+                      console.error('Gemini API Error:', result.error);
+                      setNewsData(`API Error: ${result.error.message || JSON.stringify(result.error)}`);
+                      setLoading(false);
+                      return;
+                    }
       const output = result?.candidates?.[0]?.content?.parts?.[0]?.text || 'No data available.';
       setNewsData(output);
     } catch (error) {
@@ -128,5 +135,6 @@ export default function Home() {
     </div>
   );
 }
+
 
 
