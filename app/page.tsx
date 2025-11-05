@@ -1,4 +1,5 @@
 'use client';
+// Environment variable configured for Gemini API
 
 import { useEffect, useState } from 'react';
 
@@ -127,3 +128,4 @@ export default function Home() {
     </div>
   );
 }
+
