@@ -1,32 +1,40 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 
 const TABS = ["news", "jobs", "skills"];
 
-const App = () => {
+export default function Home() {
   const [activeTab, setActiveTab] = useState("news");
-  const [news, setNews] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  // Fetch FinTech News
-  useEffect(() => {
-    const fetchNews = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(
-          "https://newsdata.io/api/1/news?apikey=YOUR_API_KEY&category=business&language=en&q=fintech"
-        );
-        const data = await res.json();
-        setNews(data.results || []);
-      } catch (error) {
-        console.error("Error fetching news:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchNews();
-  }, []);
+  // Mock FinTech News Data
+  const news = [
+    {
+      title: "Digital Payments Surge to Record Highs in 2025",
+      description: "UPI transactions cross 15 billion monthly mark as India leads fintech revolution.",
+      link: "#"
+    },
+    {
+      title: "AI-Powered Fraud Detection Systems Go Mainstream",
+      description: "Major banks adopt machine learning to prevent financial fraud in real-time.",
+      link: "#"
+    },
+    {
+      title: "Cryptocurrency Regulations Tighten Globally",
+      description: "New international framework aims to balance innovation with consumer protection.",
+      link: "#"
+    },
+    {
+      title: "Buy Now Pay Later Services Face New Scrutiny",
+      description: "Regulators worldwide examine BNPL impact on consumer debt levels.",
+      link: "#"
+    },
+    {
+      title: "Blockchain Technology Revolutionizes Cross-Border Payments",
+      description: "Transaction times drop from days to minutes as major banks adopt distributed ledger tech.",
+      link: "#"
+    }
+  ];
 
   // Mock FinTech Job Data
   const jobs = [
@@ -96,24 +104,20 @@ const App = () => {
           {activeTab === "news" && (
             <div>
               <h2 className="text-2xl font-semibold mb-4">Latest FinTech Updates</h2>
-              {loading ? (
-                <p>Loading news...</p>
-              ) : (
-                news.slice(0, 5).map((item, i) => (
-                  <div key={i} className="border-b py-3">
-                    <h3 className="font-semibold text-lg">{item.title}</h3>
-                    <p className="text-gray-700">{item.description}</p>
-                    <a
-                      href={item.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-indigo-600 hover:underline"
-                    >
-                      Read more →
-                    </a>
-                  </div>
-                ))
-              )}
+              {news.map((item, i) => (
+                <div key={i} className="border-b py-3 last:border-b-0">
+                  <h3 className="font-semibold text-lg">{item.title}</h3>
+                  <p className="text-gray-700 mt-1">{item.description}</p>
+                  <a
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-indigo-600 hover:underline text-sm mt-2 inline-block"
+                  >
+                    Read more →
+                  </a>
+                </div>
+              ))}
             </div>
           )}
 
@@ -121,15 +125,15 @@ const App = () => {
             <div>
               <h2 className="text-2xl font-semibold mb-4">Latest FinTech Job Openings</h2>
               {jobs.map((job, i) => (
-                <div key={i} className="border-b py-3">
+                <div key={i} className="border-b py-3 last:border-b-0">
                   <h3 className="text-xl font-bold">{job.title}</h3>
-                  <p className="text-gray-700">
+                  <p className="text-gray-700 mt-1">
                     {job.company} — {job.location}
                   </p>
-                  <p className="text-sm text-gray-500">Posted: {job.posted}</p>
+                  <p className="text-sm text-gray-500 mt-1">Posted: {job.posted}</p>
                   <a
                     href={job.link}
-                    className="text-indigo-600 hover:underline text-sm"
+                    className="text-indigo-600 hover:underline text-sm mt-2 inline-block"
                   >
                     View Details →
                   </a>
@@ -145,7 +149,7 @@ const App = () => {
                 {skills.map((s, i) => (
                   <li
                     key={i}
-                    className="flex justify-between border-b pb-2 text-gray-800"
+                    className="flex justify-between border-b pb-2 text-gray-800 last:border-b-0"
                   >
                     <span>{s.skill}</span>
                     <span className="font-medium text-indigo-600">{s.demand}</span>
@@ -158,9 +162,9 @@ const App = () => {
                   Skill Analysis:
                 </h3>
                 <p className="text-gray-700">
-                  FinTech in 2025 is heavily driven by **AI, data analytics, and blockchain**.
-                  Professionals with cross-domain skills — combining **finance, programming,
-                  and business understanding** — are in the highest demand globally.
+                  FinTech in 2025 is heavily driven by AI, data analytics, and blockchain.
+                  Professionals with cross-domain skills combining finance, programming,
+                  and business understanding are in the highest demand globally.
                 </p>
               </div>
             </div>
@@ -169,6 +173,4 @@ const App = () => {
       </div>
     </div>
   );
-};
-
-export default App;
+}
