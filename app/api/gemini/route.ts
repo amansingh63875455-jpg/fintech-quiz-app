@@ -13,13 +13,13 @@ export async function POST(request: Request) {
     }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-        }),
+          contents: [{ parts: [{ text: prompt }] }]
+        })
       }
     );
 
@@ -35,7 +35,6 @@ export async function POST(request: Request) {
     const output = result?.candidates?.[0]?.content?.parts?.[0]?.text || 'No data available.';
     return NextResponse.json({ text: output });
   } catch (error) {
-    console.error('Gemini API Error:', error);
     return NextResponse.json(
       { error: 'Failed to fetch from Gemini API' },
       { status: 500 }
