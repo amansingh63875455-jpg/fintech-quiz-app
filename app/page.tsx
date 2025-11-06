@@ -1,15 +1,15 @@
 'use client';
+import { useState, useEffect } from 'react';
 
-import { useState } from 'react';
+interface NewsItem {
+  title: string;
+  link: string;
+  description: string;
+  pubDate: string;
+  source: string;
+}
 
 const fintechSources = {
-  news: [
-    { name: 'Economic Times - FinTech', url: 'https://economictimes.indiatimes.com/tech/fintech', description: 'Latest FinTech news and updates from India' },
-    { name: 'Inc42', url: 'https://inc42.com/buzz/fintech/', description: 'Indian startup ecosystem and FinTech coverage' },
-    { name: 'YourStory', url: 'https://yourstory.com/companies/fintech', description: 'Stories of Indian startups and FinTech companies' },
-    { name: 'Money Control - FinTech', url: 'https://www.moneycontrol.com/news/tags/fintech.html', description: 'Financial news and FinTech developments' },
-    { name: 'Business Standard - Technology', url: 'https://www.business-standard.com/technology', description: 'Technology and FinTech business news' },
-  ],
   international: [
     { name: 'TechCrunch - FinTech', url: 'https://techcrunch.com/tag/fintech/', description: 'Global FinTech news and insights' },
     { name: 'The Financial Brand', url: 'https://thefinancialbrand.com/', description: 'Digital banking and FinTech trends' },
@@ -35,6 +35,103 @@ const fintechSources = {
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('news');
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState<string>('');
+
+  useEffect(() => {
+    if (activeTab === 'news') {
+      fetchNews();
+    }
+  }, [activeTab]);
+
+  const fetchNews = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/news');
+      const data = await response.json();
+      setNews(data.news || []);
+      setLastUpdate(data.lastUpdate);
+    } catch (error) {
+      console.error('Failed to fetch news:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderNews = () => {
+    if (loading) {
+      return (
+        <div className="text-center py-12">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
+          <p className="mt-4 text-white text-lg">Loading latest fintech news...</p>
+        </div>
+      );
+    }
+
+    if (news.length === 0) {
+      return (
+        <div className="text-center py-12 text-white">
+          <p className="text-xl">No news available at the moment.</p>
+          <button 
+            onClick={fetchNews}
+            className="mt-4 px-6 py-2 bg-white text-indigo-600 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        {lastUpdate && (
+          <div className="text-center mb-6 text-white/80 text-sm">
+            Last updated: {new Date(lastUpdate).toLocaleString('en-IN', { 
+              dateStyle: 'medium', 
+              timeStyle: 'short',
+              timeZone: 'Asia/Kolkata'
+            })} IST
+          </div>
+        )}
+        <div className="grid gap-6">
+          {news.map((item, index) => (
+            <div 
+              key={index} 
+              className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 hover:shadow-lg transition-all border border-purple-100"
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-sm font-semibold text-indigo-600 bg-indigo-100 px-2 py-1 rounded">
+                      {item.source}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {new Date(item.pubDate).toLocaleDateString('en-IN')}
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-bold text-indigo-800 mb-2">
+                    {index + 1}. {item.title}
+                  </h3>
+                  {item.description && (
+                    <p className="text-gray-600 mb-4 line-clamp-3">{item.description}</p>
+                  )}
+                  <a 
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  >
+                    Read Full Article →
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </>
+    );
+  };
 
   const renderLinks = () => {
     return fintechSources[activeTab].map((source, index) => (
@@ -66,7 +163,7 @@ export default function Home() {
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-white mb-4">FinTech Dashboard India 🇮🇳</h1>
           <p className="text-white/90 text-lg">Your Comprehensive FinTech Information Hub</p>
-          <p className="text-white/70 text-sm mt-2">Top 10 Curated FinTech Resources</p>
+          <p className="text-white/70 text-sm mt-2">Real-time Indian FinTech News & Resources</p>
         </div>
 
         {/* Tabs */}
@@ -90,9 +187,7 @@ export default function Home() {
         </div>
 
         {/* Content Area */}
-        <div className="grid gap-6">
-          {renderLinks()}
-        </div>
+        {activeTab === 'news' ? renderNews() : <div className="grid gap-6">{renderLinks()}</div>}
       </div>
     </div>
   );
