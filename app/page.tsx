@@ -20,17 +20,19 @@ const fintechSources = {
   jobs: [
     { name: 'Naukri - FinTech Jobs', url: 'https://www.naukri.com/fintech-jobs', description: 'FinTech job opportunities in India' },
     { name: 'LinkedIn Jobs - FinTech India', url: 'https://www.linkedin.com/jobs/fintech-jobs-india', description: 'Professional FinTech job listings' },
+  ],
+  listings: [
     { name: 'Indeed India - FinTech', url: 'https://in.indeed.com/FinTech-jobs', description: 'Wide range of FinTech positions' },
-    { name: 'AngelList - India Startups', url: 'https://angel.co/india/fintech/jobs', description: 'FinTech startup jobs in India' },
+    { name: 'AngelList - India Startups', url: 'https://www.angellist.com/india/fintech-startups/jobs', description: 'FinTech startup jobs in India' },
     { name: 'Instahyre - FinTech', url: 'https://www.instahyre.com/search-jobs/fintech/', description: 'Curated FinTech job opportunities' },
   ],
   learning: [
     { name: 'Coursera - FinTech Courses', url: 'https://www.coursera.org/courses?query=fintech', description: 'Online FinTech courses and certifications' },
     { name: 'edX - Financial Technology', url: 'https://www.edx.org/learn/fintech', description: 'University-level FinTech courses' },
     { name: 'Udemy - FinTech', url: 'https://www.udemy.com/topic/fintech/', description: 'Practical FinTech skill development' },
-    { name: 'NPCI - UPI Resources', url: 'https://www.npci.org.in/what-we-do/upi/product-overview', description: 'Learn about India\'s UPI payment system' },
+    { name: 'NPCI - UPI Resources', url: 'https://www.npci.org.in/what-we-do/upi/product-overview', description: 'Learn about India\\'s UPI payment system' },
     { name: 'RBI - Financial Inclusion', url: 'https://www.rbi.org.in/', description: 'Reserve Bank of India resources' },
-  ]
+  ],
 };
 
 export default function Home() {
@@ -38,23 +40,17 @@ export default function Home() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string>('');
-    const [expandedNews, setExpandedNews] = useState<number | null>(null);
-    const [summaries, setSummaries] = useState<{ [key: number]: string }>({});
-    const [loadingSummary, setLoadingSummary] = useState<number | null>(null);
+  const [expandedNews, setExpandedNews] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (activeTab === 'news') {
-      fetchNews();
-    }
-  }, [activeTab]);
-
-  const fetchNews = async () => {
+  const fetchIndiaNews = async () => {
     setLoading(true);
     try {
       const response = await fetch('/api/news');
-      const data = await response.json();
-      setNews(data.news || []);
-      setLastUpdate(data.lastUpdate);
+      if (response.ok) {
+        const data = await response.json();
+        setNews(data.items || []);
+        setLastUpdate(new Date().toLocaleString());
+      }
     } catch (error) {
       console.error('Failed to fetch news:', error);
     } finally {
@@ -62,202 +58,178 @@ export default function Home() {
     }
   };
 
-    const fetchSummary = async (index: number, item: NewsItem) => {
-          if (summaries[index]) {
-                  setExpandedNews(expandedNews === index ? null : index);
-                  return;
-                }
+  useEffect(() => {
+    if (activeTab === 'news') {
+      fetchIndiaNews();
+    }
+  }, [activeTab]);
 
-          setLoadingSummary(index);
-          setExpandedNews(index);
-
-          try {
-                  const response = await fetch('/api/news-summary', {
-                            method: 'POST',
-                            headers: {
-                                        'Content-Type': 'application/json',
-                                      },
-                            body: JSON.stringify({
-                                        title: item.title,
-                                        description: item.description,
-                                        link: item.link,
-                                        wordCount: 250,
-                                      }),
-                          });
-
-                  const data = await response.json();
-                  setSummaries(prev => ({ ...prev, [index]: data.summary }));
-                } catch (error) {
-                  console.error('Failed to fetch summary:', error);
-                  setSummaries(prev => ({ ...prev, [index]: 'Failed to generate summary. Please try again.' }));
-                } finally {
-                  setLoadingSummary(null);
-                }
-        };
+  const truncateText = (text: string, maxWords: number = 250) => {
+    const words = text.split(' ');
+    if (words.length <= maxWords) return text;
+    return words.slice(0, maxWords).join(' ') + '...';
+  };
 
   const renderNews = () => {
     if (loading) {
       return (
-        <div className="text-center py-12">
-          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
-          <p className="mt-4 text-white text-lg">Loading latest fintech news...</p>
+        <div className="text-center py-8">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <p className="mt-2 text-gray-600">Loading latest news...</p>
         </div>
       );
     }
 
     if (news.length === 0) {
       return (
-        <div className="text-center py-12 text-white">
-          <p className="text-xl">No news available at the moment.</p>
-          <button 
-            onClick={fetchNews}
-            className="mt-4 px-6 py-2 bg-white text-indigo-600 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            Retry
-          </button>
+        <div className="text-center py-8 text-gray-600">
+          No news available. Click refresh to load latest updates.
         </div>
       );
     }
 
     return (
-      <>
-        {lastUpdate && (
-          <div className="text-center mb-6 text-white/80 text-sm">
-            Last updated: {new Date(lastUpdate).toLocaleString('en-IN', { 
-              dateStyle: 'medium', 
-              timeStyle: 'short',
-              timeZone: 'Asia/Kolkata'
-            })} IST
-          </div>
-        )}
-        <div className="grid gap-6">
-          {news.map((item, index) => (
-            <div 
-              key={index} 
-              className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 hover:shadow-lg transition-all border border-purple-100"
+      <div className="space-y-4">
+        {news.map((item, index) => (
+          <div key={index} className="bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+            <h3 className="text-xl font-bold text-indigo-600 mb-2">{item.title}</h3>
+            <p className="text-sm text-gray-500 mb-2">
+              {item.source} • {new Date(item.pubDate).toLocaleDateString()}
+            </p>
+            <p className="text-gray-700 mb-4 line-clamp-3">{item.description}</p>
+            
+            <button
+              onClick={() => setExpandedNews(expandedNews === index ? null : index)}
+              className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium mr-3 mb-2"
             >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-sm font-semibold text-indigo-600 bg-indigo-100 px-2 py-1 rounded">
-                      {item.source}
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {new Date(item.pubDate).toLocaleDateString('en-IN')}
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-bold text-indigo-800 mb-2">
-                    {index + 1}. {item.title}
-                  </h3>
-                  {item.description && (
-                    <p className="text-gray-600 mb-4 line-clamp-3">{item.description}</p>
-                  )}
-                  <div className="flex gap-3 mb-4">
-                <button
-                  onClick={() => fetchSummary(index, item)}
-                  className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
-                >
-                  {loadingSummary === index ? (
-                    <>
-                      <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      🤖 {expandedNews === index && summaries[index] ? 'Hide' : 'AI'} Summary
-                    </>
-                  )}
-                </button>
-                <a 
-                    href={item.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                  >
-                    Read Full Article →
-                  </a>
-                </div>
-
-                                {expandedNews === index && summaries[index] && (
-                              <div className="mt-4 p-4 bg-white rounded-lg border-2 border-purple-200">
-                                                  <div className="flex items-start gap-2">
-                                                                        <span className="text-2xl">✨</span>
-                                                                        <div>
-                                                                                                <h4 className="font-bold text-purple-800 mb-2">AI-Generated Summary</h4>
-                                                                                                <p className="text-gray-700 leading-relaxed">{summaries[index]}</p>
-                                                                                              </div>
-                                                                      </div>
-                                                </div>
-                            )}
+              {expandedNews === index ? 'Hide Summary' : 'View Summary (200-300 words)'}
+            </button>
+            
+            {expandedNews === index && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <h4 className="font-semibold text-gray-800 mb-2">Summary</h4>
+                <p className="text-gray-700 whitespace-pre-wrap">{truncateText(item.description)}</p>
+                <p className="text-sm text-gray-500 mt-2">Word count: ~{truncateText(item.description).split(' ').length} words</p>
               </div>
-            </div>
-          ))}
-        </div>
+            )}
+            
+            <a
+              href={item.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+            >
+              Read Full Article
+            </a>
+          </div>
+        ))}
+      </div>
     );
   };
 
-  const renderLinks = () => {
-    return fintechSources[activeTab].map((source, index) => (
-      <div key={index} className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6 hover:shadow-lg transition-all border border-purple-100">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <h3 className="text-xl font-bold text-indigo-800 mb-2">
-              {index + 1}. {source.name}
-            </h3>
-            <p className="text-gray-600 mb-4">{source.description}</p>
-            <a 
-              href={source.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              Visit Website →
-            </a>
-          </div>
+  const renderSources = () => (
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {fintechSources[activeTab as keyof typeof fintechSources]?.map((source, index) => (
+        <div key={index} className="bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow">
+          <h3 className="text-lg font-bold text-indigo-600 mb-2">{source.name}</h3>
+          <p className="text-gray-600 mb-4 text-sm">{source.description}</p>
+          <a
+            href={source.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
+          >
+            Visit Source →
+          </a>
         </div>
-      </div>
-    ));
-  };
+      ))}
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold text-white mb-4">FinTech Dashboard India 🇮🇳</h1>
-          <p className="text-white/90 text-lg">Your Comprehensive FinTech Information Hub</p>
-          <p className="text-white/70 text-sm mt-2">Real-time Indian FinTech AI-Powered Summaries</p>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+      <div className="container mx-auto px-4 py-8">
+        <header className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-4">
+            🏦 FinTech Hub India
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Your comprehensive source for FinTech news, jobs, and learning resources in India
+          </p>
+        </header>
+
+        <div className="mb-8 flex flex-wrap justify-center gap-4">
+          <button
+            onClick={() => setActiveTab('news')}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              activeTab === 'news'
+                ? 'bg-indigo-600 text-white shadow-lg scale-105'
+                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+            }`}
+          >
+            📰 India News
+          </button>
+          <button
+            onClick={() => setActiveTab('international')}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              activeTab === 'international'
+                ? 'bg-indigo-600 text-white shadow-lg scale-105'
+                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+            }`}
+          >
+            🌍 International
+          </button>
+          <button
+            onClick={() => setActiveTab('jobs')}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              activeTab === 'jobs'
+                ? 'bg-indigo-600 text-white shadow-lg scale-105'
+                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+            }`}
+          >
+            💼 Jobs
+          </button>
+          <button
+            onClick={() => setActiveTab('listings')}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              activeTab === 'listings'
+                ? 'bg-indigo-600 text-white shadow-lg scale-105'
+                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+            }`}
+          >
+            📋 Listings
+          </button>
+          <button
+            onClick={() => setActiveTab('learning')}
+            className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+              activeTab === 'learning'
+                ? 'bg-indigo-600 text-white shadow-lg scale-105'
+                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+            }`}
+          >
+            📚 Learning
+          </button>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-4 mb-8 justify-center flex-wrap">
-          {['news', 'international', 'jobs', 'learning'].map((tab) => (
+        {activeTab === 'news' && (
+          <div className="mb-6 flex justify-between items-center bg-white p-4 rounded-lg shadow-md">
+            <div className="text-sm text-gray-600">
+              {lastUpdate && `Last updated: ${lastUpdate}`}
+            </div>
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                activeTab === tab
-                  ? 'bg-white text-indigo-600 shadow-lg scale-105'
-                  : 'bg-white/20 text-white hover:bg-white/30'
-              }`}
+              onClick={fetchIndiaNews}
+              disabled={loading}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-400 font-medium"
             >
-              {tab === 'news' && '📰 India News'}
-              {tab === 'international' && '🌍 Global News'}
-              {tab === 'jobs' && '💼 Jobs'}
-              {tab === 'learning' && '📚 Learning'}
+              {loading ? 'Refreshing...' : '🔄 Refresh News'}
             </button>
-          ))}
-        </div>
+          </div>
+        )}
 
-        {/* Content Area */}
-        {activeTab === 'news' ? renderNews() : <div className="grid gap-6">{renderLinks()}</div>}
+        <div className="mt-8">
+          {activeTab === 'news' ? renderNews() : renderSources()}
+        </div>
       </div>
     </div>
   );
 }
-
-
-
