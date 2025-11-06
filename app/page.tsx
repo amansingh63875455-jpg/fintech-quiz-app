@@ -38,6 +38,9 @@ export default function Home() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string>('');
+    const [expandedNews, setExpandedNews] = useState<number | null>(null);
+    const [summaries, setSummaries] = useState<{ [key: number]: string }>({});
+    const [loadingSummary, setLoadingSummary] = useState<number | null>(null);
 
   useEffect(() => {
     if (activeTab === 'news') {
@@ -58,6 +61,39 @@ export default function Home() {
       setLoading(false);
     }
   };
+
+    const fetchSummary = async (index: number, item: NewsItem) => {
+          if (summaries[index]) {
+                  setExpandedNews(expandedNews === index ? null : index);
+                  return;
+                }
+
+          setLoadingSummary(index);
+          setExpandedNews(index);
+
+          try {
+                  const response = await fetch('/api/news-summary', {
+                            method: 'POST',
+                            headers: {
+                                        'Content-Type': 'application/json',
+                                      },
+                            body: JSON.stringify({
+                                        title: item.title,
+                                        description: item.description,
+                                        link: item.link,
+                                        wordCount: 250,
+                                      }),
+                          });
+
+                  const data = await response.json();
+                  setSummaries(prev => ({ ...prev, [index]: data.summary }));
+                } catch (error) {
+                  console.error('Failed to fetch summary:', error);
+                  setSummaries(prev => ({ ...prev, [index]: 'Failed to generate summary. Please try again.' }));
+                } finally {
+                  setLoadingSummary(null);
+                }
+        };
 
   const renderNews = () => {
     if (loading) {
@@ -116,7 +152,26 @@ export default function Home() {
                   {item.description && (
                     <p className="text-gray-600 mb-4 line-clamp-3">{item.description}</p>
                   )}
-                  <a 
+                  <div className="flex gap-3 mb-4">
+                <button
+                  onClick={() => fetchSummary(index, item)}
+                  className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                >
+                  {loadingSummary === index ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      🤖 {expandedNews === index && summaries[index] ? 'Hide' : 'AI'} Summary
+                    </>
+                  )}
+                </button>
+                <a 
                     href={item.link}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -125,6 +180,18 @@ export default function Home() {
                     Read Full Article →
                   </a>
                 </div>
+
+                                {expandedNews === index && summaries[index] && (
+                              <div className="mt-4 p-4 bg-white rounded-lg border-2 border-purple-200">
+                                                  <div className="flex items-start gap-2">
+                                                                        <span className="text-2xl">✨</span>
+                                                                        <div>
+                                                                                                <h4 className="font-bold text-purple-800 mb-2">AI-Generated Summary</h4>
+                                                                                                <p className="text-gray-700 leading-relaxed">{summaries[index]}</p>
+                                                                                              </div>
+                                                                      </div>
+                                                </div>
+                            )}
               </div>
             </div>
           ))}
@@ -163,7 +230,7 @@ export default function Home() {
         <div className="text-center mb-8">
           <h1 className="text-5xl font-bold text-white mb-4">FinTech Dashboard India 🇮🇳</h1>
           <p className="text-white/90 text-lg">Your Comprehensive FinTech Information Hub</p>
-          <p className="text-white/70 text-sm mt-2">Real-time Indian FinTech News & Resources</p>
+          <p className="text-white/70 text-sm mt-2">Real-time Indian FinTech AI-Powered Summaries</p>
         </div>
 
         {/* Tabs */}
@@ -192,3 +259,4 @@ export default function Home() {
     </div>
   );
 }
+
