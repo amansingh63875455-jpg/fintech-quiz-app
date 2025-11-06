@@ -196,7 +196,6 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </>
     );
   };
 
@@ -259,4 +258,5 @@ export default function Home() {
     </div>
   );
 }
+
 
