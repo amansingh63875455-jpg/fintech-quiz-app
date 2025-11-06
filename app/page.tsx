@@ -30,8 +30,7 @@ const fintechSources = {
     { name: 'Coursera - FinTech Courses', url: 'https://www.coursera.org/courses?query=fintech', description: 'Online FinTech courses and certifications' },
     { name: 'edX - Financial Technology', url: 'https://www.edx.org/learn/fintech', description: 'University-level FinTech courses' },
     { name: 'Udemy - FinTech', url: 'https://www.udemy.com/topic/fintech/', description: 'Practical FinTech skill development' },
-    { name: 'NPCI - UPI Resources', url: 'https://www.npci.org.in/what-we-do/upi/product-overview', description: 'Learn about India\\'s UPI payment system' },
-    { name: 'RBI - Financial Inclusion', url: 'https://www.rbi.org.in/', description: 'Reserve Bank of India resources' },
+    { name: 'NPCI - UPI Resources', url: 'https://www.npci.org.in/what-we-do/upi/product-overview', description: 'Learn about India\'s UPI payment system' },    { name: 'RBI - Financial Inclusion', url: 'https://www.rbi.org.in/', description: 'Reserve Bank of India resources' },
   ],
 };
 
@@ -233,3 +232,4 @@ export default function Home() {
     </div>
   );
 }
+
