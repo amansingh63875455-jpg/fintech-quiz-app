@@ -1,3 +1,4 @@
+"use client";
 // OmniTricksFinal.jsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import jsPDF from "jspdf";
@@ -381,3 +382,4 @@ export default function OmniTricksFinal() {
     </div>
   );
 }
+
