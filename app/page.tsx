@@ -31,8 +31,7 @@ export default function OmniClicks() {
           const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(feed)}`);
           const data = await res.json();
           const xml = new window.DOMParser().parseFromString(data.contents, "text/xml");
-          const items = Array.from(xml.querySelectorAll("item")).slice(0, 4);
-
+ const items = Array.from(xml.querySelectorAll("item")).slice(0, 10);
           items.forEach((item) => {
             allNews.push({
               title: item.querySelector("title")?.textContent || "",
@@ -44,8 +43,7 @@ export default function OmniClicks() {
           });
         }
 
-        setNews(allNews.slice(0, 10));
-      } catch (err) {
+ setNews(allNews.slice(0, 50));      } catch (err) {
         console.error("Error fetching RSS:", err);
       } finally {
         setLoading(false);
@@ -104,8 +102,7 @@ export default function OmniClicks() {
               <p className="text-gray-400 text-center py-12">Loading latest FinTech updates...</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {news.map((item, i) => (
-                  <div
+ {news.slice(0, 10).map((item, i) => (                  <div
                     key={i}
                     className="bg-gray-800 hover:bg-gray-750 rounded-lg p-5 shadow-lg transition-all"
                   >
