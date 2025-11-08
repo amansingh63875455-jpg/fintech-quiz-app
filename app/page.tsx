@@ -111,7 +111,7 @@ export default function OmniClicks() {
                   >
                     <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
                     <p className="text-gray-400 text-sm mb-4">
-                      {item.description.slice(0, 200)}...
+                      {item.description.slice(0, 1500)}...
                     </p>
                     <div className="flex justify-between items-center text-xs text-gray-500">
                       <span>{item.source}</span>
