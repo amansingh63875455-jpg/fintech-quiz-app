@@ -7,7 +7,7 @@ const App = () => {
   const [historicalAnswers, setHistoricalAnswers] = useState({});
   const [showResults, setShowResults] = useState(false);
   const [showHistoricalResults, setShowHistoricalResults] = useState(false);
-  const [expandedNews, setExpandedNews] = useState(null);
+  const [expandedNews, setExpandedNews] = useState<string | null>(null);
   const [isReading, setIsReading] = useState(false);
   const [currentReadingIndex, setCurrentReadingIndex] = useState(null);
 
@@ -73,7 +73,8 @@ const App = () => {
     ]
   };
 
-  const speak = (news, idx, isHist) => {
+  const speak = (news: any, idx: number, isHist: boolean) => {
+
     const key = `${isHist ? 'h' : 'n'}${idx}`;
     if (isReading && currentReadingIndex === key) {
       window.speechSynthesis.cancel();
@@ -91,7 +92,7 @@ const App = () => {
     u.onend = () => { setIsReading(false); setCurrentReadingIndex(null); };
     window.speechSynthesis.speak(u);
     setIsReading(true);
-    setCurrentReadingIndex(key);
+    setCurrentReadingIndex(key as any);
   };
 
   const stop = () => {
