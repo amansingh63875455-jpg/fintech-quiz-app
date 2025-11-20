@@ -31,7 +31,8 @@ export default function OmniClicks() {
           const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(feed)}`);
           const data = await res.json();
           const xml = new window.DOMParser().parseFromString(data.contents, "text/xml");
- const items = Array.from(xml.querySelectorAll("item")).slice(0, 10);
+          const items = Array.from(xml.querySelectorAll("item")).slice(0, 10);
+
           items.forEach((item) => {
             allNews.push({
               title: item.querySelector("title")?.textContent || "",
@@ -43,7 +44,8 @@ export default function OmniClicks() {
           });
         }
 
- setNews(allNews.slice(0, 50));      } catch (err) {
+        setNews(allNews.slice(0, 50));
+      } catch (err) {
         console.error("Error fetching RSS:", err);
       } finally {
         setLoading(false);
@@ -97,12 +99,13 @@ export default function OmniClicks() {
         {/* === Today's News Section === */}
         {activeTab === "today" && (
           <div>
-            <h2 className="text-3xl font-bold mb-6">Today’s News</h2>
+            <h2 className="text-3xl font-bold mb-6">Today's News</h2>
             {loading ? (
               <p className="text-gray-400 text-center py-12">Loading latest FinTech updates...</p>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- {news.slice(0, 10).map((item, i) => (                  <div
+                {news.slice(0, 10).map((item, i) => (
+                  <div
                     key={i}
                     className="bg-gray-800 hover:bg-gray-750 rounded-lg p-5 shadow-lg transition-all"
                   >
@@ -135,7 +138,7 @@ export default function OmniClicks() {
             <ul className="space-y-3 text-gray-300">
               <li>• UPI crossed 10 billion transactions milestone — 2023</li>
               <li>• RBI introduced Digital Rupee pilot — 2022</li>
-              <li>• Paytm IPO marked India’s largest fintech listing — 2021</li>
+              <li>• Paytm IPO marked India's largest fintech listing — 2021</li>
               <li>• PhonePe & Google Pay dominance in digital payments — 2020</li>
               <li>• India Stack revolutionized public digital infrastructure — 2016-2019</li>
             </ul>
