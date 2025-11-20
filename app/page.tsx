@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+// Force rebuild - fixing 404 issue
 // Simple RSS parser (no API key needed)
 const RSS_FEEDS = [
   "https://economictimes.indiatimes.com/markets/finance/rssfeeds/1977021501.cms",
